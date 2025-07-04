@@ -108,6 +108,8 @@ jobs:
           docker cp $(docker create rarosalion/caddy-build:latest):/usr/bin/caddy ./
           ./caddy --version
           ./caddy list-modules
+          md5sum caddy
+          sha256sum caddy
 
       - name: upload linux artifact
         uses: softprops/action-gh-release@v2
