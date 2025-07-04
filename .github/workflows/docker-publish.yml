@@ -92,7 +92,10 @@ jobs:
   extract-caddy-binaries:
 
     name: Extract caddy binaries from docker images, and create Github artifacts
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
     permissions:
       contents: write
 
@@ -106,10 +109,11 @@ jobs:
         shell: bash
         run: |
           docker cp $(docker create rarosalion/caddy-build:latest):/usr/bin/caddy ./
-          ./caddy --version
-          ./caddy list-modules
-          md5sum caddy
-          sha256sum caddy
+          dest=./caddy-$(uname -m)
+          $dest --version
+          $dest list-modules
+          md5sum $dest
+          sha256sum $dest
 
       - name: upload linux artifact
         uses: softprops/action-gh-release@v2
@@ -117,4 +121,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: latest
-          files: ./caddy
+          files: ./caddy-*
