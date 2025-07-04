@@ -107,7 +107,7 @@ jobs:
         with:
           image: ${{ env.IMAGE_NAME }}:latest
           path: /usr/bin/caddy
-          destination: ~/caddy
+          destination: ~/bin/
 
       - name: upload linux artifact
         uses: softprops/action-gh-release@v2
@@ -115,4 +115,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: latest
-          files: ~/caddy
+          files: ~/bin/caddy
