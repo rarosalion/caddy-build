@@ -106,6 +106,8 @@ jobs:
         shell: bash
         run: |
           docker cp $(docker create rarosalion/caddy-build:latest):/usr/bin/caddy ./
+          ./caddy --version
+          ./caddy list-modules
 
       - name: upload linux artifact
         uses: softprops/action-gh-release@v2
