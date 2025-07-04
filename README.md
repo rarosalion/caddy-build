@@ -2,7 +2,7 @@
 
 Caddy Web Server with additional plugins.
 
-Based on https://github.com/rarosalion/caddy-build.
+Based on [https://hub.docker.com/r/timelordx/caddy-dns-acmedns]
 
 Feel free to fork and change the installed modules in the Dockerfile.
 
