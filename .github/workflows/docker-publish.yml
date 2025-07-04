@@ -113,12 +113,9 @@ jobs:
           path: /usr/bin/caddy
           destination: caddy
 
-      - name: Upload Dist
-        uses: actions/upload-artifact@v4
+      - name: upload linux artifact
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          path: caddy
-
-      - uses: AButler/upload-release-assets@v3.0
-        with:
-          files: "caddy"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          files: caddy
