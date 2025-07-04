@@ -118,4 +118,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
+          tag_name: latest
           files: caddy
