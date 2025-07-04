@@ -117,3 +117,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: caddy
+
+      - uses: AButler/upload-release-assets@v3.0
+        with:
+          files: "caddy"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
