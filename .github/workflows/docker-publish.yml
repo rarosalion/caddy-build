@@ -108,8 +108,11 @@ jobs:
       - name: extract binary file from docker image
         shell: bash
         run: |
-          docker cp $(docker create rarosalion/caddy-build:latest):/usr/bin/caddy ./
+          dest_dir=./caddy/${{ matrix.os }}/
+          mkdir -p $dest_dir
+          docker cp $(docker create rarosalion/caddy-build:latest):/usr/bin/caddy ${dest_dir}
           dest=./caddy-$(uname -m)
+          mv ${dest_dir}/caddy $dest
           $dest --version
           $dest list-modules
           md5sum $dest
