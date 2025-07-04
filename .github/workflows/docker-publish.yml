@@ -116,7 +116,7 @@ jobs:
       - name: upload linux artifact
         uses: softprops/action-gh-release@v2
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: latest
           files: caddy
