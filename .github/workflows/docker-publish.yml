@@ -87,3 +87,33 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.build-and-push.outputs.digest }}
+
+  ## Separate job to extract binaries from generated images
+  extract-caddy-binaries:
+
+    name: Extract caddy binaries from docker images, and create Github artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      ## This is used to complete the identity challenge
+      ## with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    # Make sure the docker images have been built first
+    needs: build-and-push-docker-image
+
+    steps:
+
+      # Extract files from created docker images
+      - uses: shrink/actions-docker-extract@v3
+        id: extract
+        with:
+          image: ${{ env.IMAGE_NAME }}:latest
+          path: /usr/bin/caddy
+          destination: caddy
+
+      - name: Upload Dist
+        uses: actions/upload-artifact@v3
+        with:
+          path: caddy

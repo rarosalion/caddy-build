@@ -1,11 +1,12 @@
+ENV CADDY_VERSION v2.9.1
 FROM caddy:builder AS builder
 
 # Versions fixed until route53 fix: https://github.com/caddy-dns/route53/issues/58    
-RUN xcaddy build v2.9.1 \
+RUN xcaddy build $CADDY_VERSION \
     --with github.com/porech/caddy-maxmind-geolocation \
     --with github.com/fvbommel/caddy-dns-ip-range \
     --with github.com/caddy-dns/route53@v1.5.0 
 
-FROM caddy:latest
+FROM caddy:$CADDY_VERSION
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
