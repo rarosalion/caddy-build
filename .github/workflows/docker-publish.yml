@@ -94,11 +94,7 @@ jobs:
     name: Extract caddy binaries from docker images, and create Github artifacts
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
-      ## This is used to complete the identity challenge
-      ## with sigstore/fulcio when running outside of PRs.
-      id-token: write
+      contents: write
 
     # Make sure the docker images have been built first
     needs: build-and-push-docker-image
@@ -111,7 +107,7 @@ jobs:
         with:
           image: ${{ env.IMAGE_NAME }}:latest
           path: /usr/bin/caddy
-          destination: caddy
+          destination: ~/caddy
 
       - name: upload linux artifact
         uses: softprops/action-gh-release@v2
@@ -119,4 +115,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: latest
-          files: caddy
+          files: ~/caddy
