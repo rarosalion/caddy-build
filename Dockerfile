@@ -1,4 +1,4 @@
-ARG BUILD_CADDY_VERSION=2.9.1
+ARG BUILD_CADDY_VERSION=2.11.2
 FROM caddy:${BUILD_CADDY_VERSION}-builder AS builder
 
 # Versions fixed until route53 fix: https://github.com/caddy-dns/route53/issues/58    
