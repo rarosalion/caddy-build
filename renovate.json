@@ -1,1 +1,30 @@
-{ "includeForks": true }
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "includeForks": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Caddy version ARG in Dockerfile",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s+ARG BUILD_CADDY_VERSION=(?<currentValue>\\S+)"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "The Dockerfile ARG is handled by the custom manager above; avoid duplicate PRs",
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["caddy"],
+      "enabled": false
+    },
+    {
+      "matchPackageNames": ["caddy"],
+      "matchDatasources": ["docker"],
+      "versioning": "semver",
+      "automerge": true,
+      "commitMessageTopic": "Caddy"
+    }
+  ]
+}
