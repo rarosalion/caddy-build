@@ -172,11 +172,11 @@ jobs:
           tag_name: latest
           files: ./caddy-*
 
-      ## Raw binaries are also attached to the release matching the Caddy version
+      ## Raw binaries are also attached to the release matching the Caddy version.
+      ## Uses `gh release upload` (assets only) rather than editing the release.
       - name: upload linux artifact to versioned release
-        uses: softprops/action-gh-release@v3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ needs.build-and-push-docker-image.outputs.caddy_version }}
-          files: ./caddy-*
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "v${{ needs.build-and-push-docker-image.outputs.caddy_version }}" ./caddy-* \
+            --repo "$GITHUB_REPOSITORY" --clobber
