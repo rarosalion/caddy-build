@@ -100,6 +100,38 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.build-and-push.outputs.digest }}
 
+  ## Create a git tag + release matching the Caddy version (e.g. v2.11.2), once per version
+  tag-release:
+    name: Tag and release matching the Caddy version
+    runs-on: ubuntu-latest
+    needs: build-and-push-docker-image
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
+    env:
+      TAG: v${{ needs.build-and-push-docker-image.outputs.caddy_version }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Check whether release exists
+        id: check
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      ## Creates the tag on the triggering commit if it does not exist yet
+      - name: Create tag and release
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --notes "Caddy ${TAG} with plugins. Docker image: \`ghcr.io/${GITHUB_REPOSITORY}:${TAG#v}\`"
+
   ## Separate job to extract binaries from generated images
   extract-caddy-binaries:
 
@@ -112,7 +144,7 @@ jobs:
       contents: write
 
     # Make sure the docker images have been built first
-    needs: build-and-push-docker-image
+    needs: [build-and-push-docker-image, tag-release]
     # Images are only pushed outside of pull requests
     if: github.event_name != 'pull_request'
 
@@ -140,34 +172,11 @@ jobs:
           tag_name: latest
           files: ./caddy-*
 
-  ## Create a git tag + release matching the Caddy version (e.g. v2.11.2), once per version
-  tag-release:
-    name: Tag and release matching the Caddy version
-    runs-on: ubuntu-latest
-    needs: [build-and-push-docker-image, extract-caddy-binaries]
-    if: github.event_name != 'pull_request'
-    permissions:
-      contents: write
-    env:
-      TAG: v${{ needs.build-and-push-docker-image.outputs.caddy_version }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    steps:
-      - name: Check whether release exists
-        id: check
-        run: |
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      ## Creates the tag on the triggering commit if it does not exist yet
-      - name: Create tag and release
-        if: steps.check.outputs.exists == 'false'
-        run: |
-          gh release create "$TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" \
-            --title "$TAG" \
-            --notes "Caddy ${TAG} with plugins. Docker image: \`ghcr.io/${GITHUB_REPOSITORY}:${TAG#v}\`"
+      ## Raw binaries are also attached to the release matching the Caddy version
+      - name: upload linux artifact to versioned release
+        uses: softprops/action-gh-release@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.build-and-push-docker-image.outputs.caddy_version }}
+          files: ./caddy-*
