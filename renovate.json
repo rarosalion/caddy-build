@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "includeForks": true,
+  "ignoreDeps": ["gautamkrishnar/keepalive-workflow"],
   "customManagers": [
     {
       "customType": "regex",
